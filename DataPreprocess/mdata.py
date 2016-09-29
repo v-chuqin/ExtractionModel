@@ -38,7 +38,7 @@ def handleTweet(type,threshold):
 	elif type == 'test':
 		fileCount = 500
 	elif type  == 'dev':
-		fileCount = 327
+		fileCount = 320
 	for fileIndex in range(1,fileCount+1):
 		file = open(os.getcwd()+'/../Data/dataset-lmarujo-ACL2015/'+type+'/tweet.'+type+'.tok.en-'+str(fileIndex)+'.txt')
 		line = file.readline()
@@ -46,7 +46,7 @@ def handleTweet(type,threshold):
 		print str(fileIndex) +' : ' + cleanline
 		# set_trace()
 		tmp_list = cleanline.split(' ')
-		if len(tmp_list) == 0:
+		if len(tmp_list) == 1:
 			continue
 		Tweets.append(tmp_list)
 		file.close()
@@ -65,6 +65,28 @@ def handleTweet(type,threshold):
 		print words_tmp
 	return Tweets,Keywords
 
+def getTweetfile(threshold):
+	file = open(os.getcwd()+'/../Data/tweets.threshold_'+str(threshold)+'.txt','w')
+	Tweets,Keywords = handleTweet('train',threshold)
+	for i in range(0,len(Tweets)):
+		line = ''
+		for j in range(0,len(Tweets[i])):
+			line = line + ' ' + Tweets[i][j]
+		file.write(line[1:]+'\n')
+	Tweets,Keywords = handleTweet('test',threshold)
+	for i in range(0,len(Tweets)):
+		line = ''
+		for j in range(0,len(Tweets[i])):
+			line = line + ' ' + Tweets[i][j]
+		file.write(line[1:]+'\n')
+	Tweets,Keywords = handleTweet('dev',threshold)
+	for i in range(0,len(Tweets)):
+		line = ''
+		for j in range(0,len(Tweets[i])):
+			line = line + ' ' + Tweets[i][j]
+		file.write(line[1:]+'\n')
+	file.close()
 
+getTweetfile(6)
 
 
