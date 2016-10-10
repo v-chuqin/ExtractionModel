@@ -91,3 +91,7 @@ ENV/
 # ignore all the .bin file
 *.bin
 
+# ignore data dir
+Data/dataset-lmarujo-ACL2015/
+
+
