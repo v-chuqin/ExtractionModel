@@ -29,10 +29,12 @@ def trainWord2vec(trainfile):
 def test(trainfile,testfile):
 	trainsentences = LineSentence('../Data/'+trainfile)
 	testsentences = LineSentence('../Data/'+testfile)
-	# model = Word2Vec(trainsentences,size=50,window=5,min_count=0,workers=cpu_count())
-	model = Word2Vec.load('oldmodel')
+	model = Word2Vec(trainsentences,size=50,window=5,min_count=3,workers=cpu_count())
+	# model.save('oldmodel')
+	# model = Word2Vec.load('oldmodel')
 	oldmodel = deepcopy(model)
-	# oldmodel.save('oldmodel')
+	oldmodel.save('oldmodel')
+	model.min_count = 0
 	model.build_vocab(testsentences, update=True)
 	model.train(testsentences)
 	model.save('newmodel')
@@ -41,8 +43,8 @@ def test(trainfile,testfile):
 	return model
 
 
-model = trainWord2vec('tweets.threshold.txt')
+# model = trainWord2vec('tweets.threshold.txt')
 # model = retrainWord2vec('GoogleNews-vectors-negative300.bin','tweets.threshold.txt')
-# model = test('tweets.train.threshold_6.txt','tweets.test.threshold_6.txt')
+model = test('tweets.train.threshold_6.txt','tweets.test.threshold_6.txt')
 set_trace()
 
