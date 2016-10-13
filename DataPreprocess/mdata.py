@@ -1,5 +1,42 @@
 import os
 from ipdb import set_trace
+from gensim.models import Word2Vec
+from gensim.models.word2vec import LineSentence
+
+def loaddata(word2vecmodel,sentencefile,keywordfile):
+	# for testing output
+	# Sentences,keywords = loaddata('tweets.threshold_6.txt.model','tweets.threshold_6.txt','tweetskey.threshold_6.txt')
+	# for i in range(0,len(Sentences)):
+	# 	if len(Sentences[i]) != len(keywords[i]):
+	# 		print "error at "+str(i)
+	model = Word2Vec.load('../Data/'+word2vecmodel)
+	file_sentence = open('../Data/'+sentencefile)
+	file_keyword = open('../Data/'+keywordfile)
+	Sentences = []
+	keywords = []
+	while 1:
+		line = file_sentence.readline()
+		line_keyword = file_keyword.readline()
+		if not line or not line_keyword:
+			break
+		tmp_list = line.split()
+		tmpkeyword_list = line_keyword.split()
+		tmpkeyword = []
+		tmpsentence = []
+		for i in range(0,len(tmp_list)):
+			# set_trace()
+			try:
+				tmpsentence.append(model[tmp_list[i]])
+			except:
+				continue
+			if tmp_list[i] in tmpkeyword_list:
+				tmpkeyword.append(1)
+			else:
+				tmpkeyword.append(0)
+		Sentences.append(tmpsentence)
+		keywords.append(tmpkeyword)
+	return Sentences,keywords
+
 
 def loadStopwords():
 	Stopwords = []

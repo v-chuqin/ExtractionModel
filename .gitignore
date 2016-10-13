@@ -94,4 +94,14 @@ ENV/
 # ignore data dir
 Data/dataset-lmarujo-ACL2015/
 
+# ignore tweet data
+Data/tweetsTest_clean.tsv
 
+# ignore model file
+*.model
+
+# ignore Data
+Data/
+
+#ignore .tsv file
+*.tsv

@@ -9,19 +9,20 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 # waiting for the gensim udpate, support the new vocabulary to the pretrain model
 def retrainWord2vec(pretrainModel,trainfile):
-	premodel = Word2Vec.load_word2vec_format(pretrainModel,binary=True)
-	sentences = LineSentence('../Data/'+trainfile)
-	set_trace()
-	# model.update_vocab(new_sentences)
-	premodel.build_vocab(sentences, update=True)
-	premodel.train(sentences)
-	# model = premodel.train(sentences,size=50,window=5,min_count=1,workers=cpu_count())
-	premodel.save_word2vec_format('../Data/'+trainfile+ '.retrian.model.bin', binary=True)
+	trainsentences = LineSentence('../Data/'+trainfile)
+	premodel = Word2Vec.load('../Data/'+pretrainModel)
+	oldmodel = deepcopy(premodel)
+	premodel.min_count = 0
+	premodel.build_vocab(trainsentences, update=True)
+	premodel.train(trainsentences)
+	premodel.save('../Data/'+pretrainModel.split('.')[0]+'_'+trainfile+'.model')
+	for m in ['oldmodel', 'premodel']:
+		print 'The vocabulary size of the' +m+ 'is ' + str(len(eval(m).vocab)) 
 	return premodel
 
 def trainWord2vec(trainfile):
 	sentences = LineSentence('../Data/'+trainfile)
-	model = Word2Vec(sentences,size=50,window=3,min_count=0,workers=cpu_count())
+	model = Word2Vec(sentences,size=200,window=4,min_count=5,workers=cpu_count())
 	model.save('../Data/'+trainfile+ '.model')
 	model.save_word2vec_format('../Data/'+trainfile+ '.model.bin', binary=True)
 	return model
@@ -43,8 +44,10 @@ def test(trainfile,testfile):
 	return model
 
 
-# model = trainWord2vec('tweets.threshold.txt')
+# model = trainWord2vec('tweets.threshold_6.txt')
 # model = retrainWord2vec('GoogleNews-vectors-negative300.bin','tweets.threshold.txt')
-model = test('tweets.train.threshold_6.txt','tweets.test.threshold_6.txt')
+# model = test('tweets.train.threshold_6.txt','tweets.test.threshold_6.txt')
+model = trainWord2vec('tweetsTest_clean.tsv')
+# model = retrainWord2vec('tweetsTest_clean.tsv.model','tweets.threshold_6.txt')
 set_trace()
 
