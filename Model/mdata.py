@@ -2,6 +2,56 @@ from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 import numpy as np
 
+def generatetestdata(inputfile,word2vecmodel,SampleNum):
+	model = Word2Vec.load('../Data/'+word2vecmodel)
+	file = open('../Data/'+inputfile)
+	Sentences = []
+	keywords = []
+	simpleWeight = []
+	maxlen = 32
+	while 1:
+		line = file.readline()[:-2]
+		if not line or SampleNum == 0:
+			break
+		tmp_list = line.split()
+		tmpkeyword = []
+		tmpsentence = []
+		tmpsimpleWeight = []
+		for i in range(0,len(tmp_list)):
+			try:
+				tmpsentence.append(model[tmp_list[i]])
+			except:
+				continue
+			tmpkeyword.append(np.asarray([1], dtype=np.float32))
+			tmpsimpleWeight.append(np.asarray([1], dtype=np.float32))
+			if i == (maxlen-2):
+				break
+		SampleNum = SampleNum - 1
+		Sentences.append(tmpsentence)
+		keywords.append(tmpkeyword)
+		simpleWeight.append(tmpsimpleWeight)
+	print "maxlen is "+str(maxlen)
+	word_dim = len(Sentences[0][0])
+	print "word_dim is "+str(word_dim)
+	mask_array = []
+	for i in range(0,word_dim):
+		mask_array.append(0.0)
+	mask_array_ = np.asarray(mask_array, dtype=np.float32)
+	for i in range(0,len(Sentences)):
+		for j in range(len(Sentences[i]),maxlen):
+			Sentences[i].append(mask_array_)
+			keywords[i].append(np.asarray([0], dtype=np.float32))
+			simpleWeight[i].append(np.asarray([0], dtype=np.float32))
+		keywords[i] = np.asarray(keywords[i], dtype=np.float32)
+		simpleWeight[i] = np.asarray(simpleWeight[i], dtype=np.float32)
+		# set_trace()
+	Sentences = np.asarray(Sentences, dtype=np.float32)
+	keywords = np.asarray(keywords, dtype=np.float32)
+	simpleWeight = np.asarray(simpleWeight, dtype=np.float32)
+	file.close()
+	# set_trace()
+	return Sentences,keywords,simpleWeight
+
 def loaddata(word2vecmodel,sentencefile,keywordfile):
 	# for testing output
 	# Sentences,keywords = loaddata('tweets.threshold_6.txt.model','tweets.threshold_6.txt','tweetskey.threshold_6.txt')
@@ -16,7 +66,7 @@ def loaddata(word2vecmodel,sentencefile,keywordfile):
 	simpleWeight = []
 	maxlen = 0
 	while 1:
-		line = file_sentence.readline()
+		line = file_sentence.readline()[:-2]
 		line_keyword = file_keyword.readline()
 		if not line or not line_keyword:
 			break

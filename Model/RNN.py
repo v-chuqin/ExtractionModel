@@ -10,16 +10,17 @@ from mdata import loaddata,calprecision
 
 # inputData,outputData,simpleWeight = loaddata('tweets.threshold_6.txt.model','tweets.threshold_6.txt','tweetskey.threshold_6.txt')
 inputData,outputData,simpleWeight = loaddata('tweetsTest_clean_tweets.threshold_6.txt.model','tweets.threshold_6.txt','tweetskey.threshold_6.txt')
-# set_trace()
+set_trace()
 maxlen = inputData.shape[1]
 word_dim = inputData.shape[2]
 
 RNN = GRU
 HIDDEN_SIZE = 256
-LAYERS = 3
+LAYERS = 1
 ActivationFunction = 'softmax' #relu
 BATCH_SIZE = 32
-nb_epoch = 100
+nb_epoch = 10
+loss_funtion = 'mse' #'binary_crossentropy'
 
 model = Sequential()
 # M = Masking(mask_value=0.)
@@ -29,7 +30,9 @@ for _ in range(LAYERS):
 	model.add(RNN(HIDDEN_SIZE,return_sequences=True))
 model.add(TimeDistributed(Dense(1)))
 model.add(Activation(ActivationFunction))
-model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'],sample_weight_mode="temporal")
+# model.compile(loss=loss_funtion,optimizer='adam',metrics=['accuracy'])
+# model.fit(inputData,outputData,nb_epoch=nb_epoch,batch_size=BATCH_SIZE)
+model.compile(loss=loss_funtion,optimizer='adam',metrics=['accuracy'],sample_weight_mode="temporal")
 model.fit(inputData,outputData,nb_epoch=nb_epoch,batch_size=BATCH_SIZE,sample_weight=simpleWeight[:,:,0])
 predicted_output = model.predict(inputData, batch_size=BATCH_SIZE)
 set_trace()
