@@ -22,7 +22,7 @@ def retrainWord2vec(pretrainModel,trainfile):
 
 def trainWord2vec(trainfile):
 	sentences = LineSentence('../Data/'+trainfile)
-	model = Word2Vec(sentences,size=200,window=4,min_count=5,workers=cpu_count())
+	model = Word2Vec(sentences,size=200,window=5,min_count=0,workers=cpu_count())
 	model.save('../Data/'+trainfile+ '.model')
 	model.save_word2vec_format('../Data/'+trainfile+ '.model.bin', binary=True)
 	return model
@@ -47,7 +47,8 @@ def test(trainfile,testfile):
 # model = trainWord2vec('tweets.threshold_6.txt')
 # model = retrainWord2vec('GoogleNews-vectors-negative300.bin','tweets.threshold.txt')
 # model = test('tweets.train.threshold_6.txt','tweets.test.threshold_6.txt')
-model = trainWord2vec('tweetsTest_clean.tsv')
+# model = trainWord2vec('tweetsTest_clean.tsv')
 # model = retrainWord2vec('tweetsTest_clean.tsv.model','tweets.threshold_6.txt')
+model = trainWord2vec('cnnCropus.txt.utf-8')
 set_trace()
 

@@ -1,6 +1,64 @@
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 import numpy as np
+from collections import Counter
+from ipdb import set_trace
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+
+def generateheadlinedata(inputfile,word2vecmodel):
+	desc, headline = getdatalist(inputfile)
+	vocab, vocabcount = buildvocabulary(desc+headline)
+	word2idx, idx2word = get_idx(vocab, vocabcount)
+	embedding = get_embedding(vocab,word2vecmodel)
+	X = [[word2idx[token] for token in d.split()] for d in desc]
+	Y = [[word2idx[token] for token in head.split()] for head in headline]
+	plt.hist(map(len,Y),bins=50)
+	plt.savefig('Y.png')
+	plt.close()
+	plt.hist(map(len,X),bins=50)
+	plt.savefig('X.png')
+
+def getdatalist(inputfile):
+	desc = []
+	headline = []
+	file = open('../Data/'+inputfile)
+	while 1:
+		line = file.readline()
+		if not line:
+			break
+		tmp = line.split('\t')
+		desc.append(tmp[1])
+		headline.append(tmp[3])
+	file.close()
+	return desc,headline
+
+def buildvocabulary(lst):
+	vocabcount = Counter(w for txt in lst for w in txt.split())
+	vocab = map(lambda x: x[0], sorted(vocabcount.items(), key=lambda x: -x[1]))
+	return vocab, vocabcount
+
+def get_idx(vocab, vocabcount):
+	eos = 1
+	start_idx = eos + 1
+	word2idx = dict((word, idx+start_idx) for idx,word in enumerate(vocab))
+	word2idx['<eos>'] = eos
+	idx2word = dict((idx,word) for word,idx in word2idx.iteritems())
+	return word2idx, idx2word
+
+def get_embedding(vocab,word2vecmodel):
+	model = Word2Vec.load('../Data/'+word2vecmodel)
+	outofvocab = []
+	embedding = {}
+	for word in vocab:
+		try:
+			embedding[word] = model[word]
+		except:
+			outofvocab.append(word)
+	set_trace()
+	return embedding
 
 def generatetestdata(inputfile,word2vecmodel,SampleNum):
 	model = Word2Vec.load('../Data/'+word2vecmodel)
@@ -136,3 +194,22 @@ def calprecision(TopN,outputData,predicted_output):
 		realList_array = np.asarray(realList_array, dtype=np.intc)
 		sum = sum + realList_array*predictList_array/TopN_tmp
 	return sum/len(outputData)
+
+
+	# plt.plot([vocabcount[w] for w in vocab])
+	# plt.gca().set_xscale("log", nonposx='clip')
+	# plt.gca().set_yscale("log", nonposy='clip')
+	# plt.title('word distribution in headlines and discription')
+	# plt.xlabel('rank')
+	# plt.ylabel('total appearances')
+	# plt.savefig('vocab.png')
+
+if __name__ == "__main__":
+	# desc, headline = getdatalist('cnnCombined.txt.utf-8')
+	# vocab, vocabcount = buildvocabulary(desc+headline)
+	# word2idx, idx2word = get_idx(vocab, vocabcount)
+	# embedding = get_embedding(vocab,'cnnCropus.txt.utf-8.model')
+
+	generateheadlinedata('cnnCombined.txt.utf-8','cnnCropus.txt.utf-8.model')
+	
+	set_trace()

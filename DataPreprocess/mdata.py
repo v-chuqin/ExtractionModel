@@ -1,5 +1,7 @@
 import os
 from ipdb import set_trace
+
+
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 
@@ -36,7 +38,6 @@ def loaddata(word2vecmodel,sentencefile,keywordfile):
 		Sentences.append(tmpsentence)
 		keywords.append(tmpkeyword)
 	return Sentences,keywords
-
 
 def loadStopwords():
 	Stopwords = []
