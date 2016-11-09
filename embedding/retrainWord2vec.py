@@ -8,7 +8,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 
 # waiting for the gensim udpate, support the new vocabulary to the pretrain model
-def retrainWord2vec(pretrainModel,trainfile):
+def retrainWord2vec(pretrainModel,trainfile,vocab_size):
 	trainsentences = LineSentence('../Data/'+trainfile)
 	premodel = Word2Vec.load('../Data/'+pretrainModel)
 	oldmodel = deepcopy(premodel)
@@ -43,12 +43,18 @@ def test(trainfile,testfile):
 		print 'The vocabulary size of the' +m+ 'is ' + str(len(eval(m).vocab)) 
 	return model
 
+def translateModel(filename,filenameout):
+	model = Word2Vec.load_word2vec_format('../Data/'+filename, binary=True)
+	model.save('../Data/'+filenameout)
+	return model
 
 # model = trainWord2vec('tweets.threshold_6.txt')
 # model = retrainWord2vec('GoogleNews-vectors-negative300.bin','tweets.threshold.txt')
 # model = test('tweets.train.threshold_6.txt','tweets.test.threshold_6.txt')
 # model = trainWord2vec('tweetsTest_clean.tsv')
 # model = retrainWord2vec('tweetsTest_clean.tsv.model','tweets.threshold_6.txt')
-model = trainWord2vec('cnnCropus.txt.utf-8')
+
+# model = trainWord2vec('cnnCropus_clean.txt.utf-8')
+model = translateModel('GoogleNews-vectors-negative300.bin','GoogleNews-vectors-negative300.model')
 set_trace()
 
