@@ -450,7 +450,7 @@ def calprecision(TopN,outputData,predicted_output):
 
 if __name__ == "__main__":
 
-	generateheadlinedata('cnnCombined_clean.txt.utf-8','cnnCropus_clean.txt.utf-8.model',40000,eosflag=True,stopword=True,Sample=-1,maxlend=maxlend,embedding_function='word2vec',embeddingfileName="embedding_vocab_5000.pkl",datafileName="heads_desc_5000.pkl")
+	generateheadlinedata('cnnCombined_clean.txt.utf-8','cnnCropus_clean.txt.utf-8.model',8000,eosflag=True,stopword=True,Sample=1024,maxlend=None,embedding_function='word2vec',embeddingfileName="embedding_vocab_1000.pkl",datafileName="heads_desc_1000.pkl")
 	# loadembedding()
 	# embedding, idx2word, word2idx, glove_idx2idx, X_train, X_test, Y_train, Y_test = loadembedding(embeddingfileName="embedding_vocab_5000.pkl",datafileName="heads_desc_5000.pkl")
 

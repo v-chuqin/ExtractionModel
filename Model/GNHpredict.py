@@ -45,16 +45,16 @@ empty = 0
 eos = 1
 nb_unknown_words = 1
 
-FN1 = 'train'
+FN1 = 'train_5000'
 
 context_weight = K.variable(1.)
 head_weight = K.variable(1.)
 cross_weight = K.variable(0.)
 
 
-embedding, idx2word, word2idx, glove_idx2idx, X_train, X_test, Y_train, Y_test = loadembedding()
+embedding, idx2word, word2idx, glove_idx2idx, X_train, X_test, Y_train, Y_test = loadembedding(embeddingfileName="embedding_vocab_5000.pkl",datafileName="heads_desc_5000.pkl")
 vocab_size, embedding_size = embedding.shape
-
+# set_trace()
 
 
 def str_shape(x):
@@ -237,20 +237,25 @@ def gensamples(model,weights,X=None,X_test=None,Y_test=None,avoid=None,avoid_sco
 			avoid = [avoid]
 		avoid = [a.split() if isinstance(a,str) else a for a in avoid]
 		avoid = [vocab_fold([w if isinstance(w,int) else word2idx[w] for w in a]) for a in avoid]
-
+	# set_trace()
 	print 'HEADS:'
 	samples = []
 	if maxlend == 0:
 		skips = [0]
 	else:
 		skips = range(min(maxlend,len(x)), max(maxlend,len(x)), abs(maxlend - len(x)) // skips + 1)
+		if skips == []:
+			skips = [maxlend]
+	# set_trace()
 	for s in skips:
 		start = lpadd(x[:s])
 		fold_start = vocab_fold(start)
 		sample, score = beamsearch(model=model,weights=weights,predict=keras_rnn_predict, start=fold_start, avoid=avoid, avoid_score=avoid_score,
 								k=k, temperature=temperature, use_unk=use_unk)
+		# set_trace()
 		assert all(s[maxlend] == eos for s in sample)
 		samples += [(s,start,scr) for s,scr in zip(sample,score)]
+		# set_trace()
 
 	samples.sort(key=lambda x: x[-1])
 	codes = []
@@ -332,7 +337,8 @@ if __name__ == "__main__":
 	context_weight.set_value(np.float32(1.))
 	head_weight.set_value(np.float32(1.))
 
-	X = "sexual violence against female protestors at cairo 's tahrir square appears to be increasing , an activist group devoted to end such assaults said tuesday <eos> operation anti-sexual^ harassment / assault said it intervened in 15 of 19 reported sexual assaults on friday when 10,000 people gathered in the square on the two - year anniversary of the start of the revolution that ousted president hosni mubarak <eos> \" these attacks represent a startling escalation of violence against women in tahrir square in terms of the number of incidents and the extremity^ of the violence which took place , \" the group said in a news release <eos> the organization said some of the cases involved life - threatening violence where the attackers used knives or other weapons <eos> it said some of its members also were attacked during rescue attempts <eos> cairo0 official warns of state 's collapse as protesters defy curfew "	
+	# X = "sexual violence against female protestors at cairo 's tahrir square appears to be increasing , an activist group devoted to end such assaults said tuesday <eos> operation anti-sexual^ harassment / assault said it intervened in 15 of 19 reported sexual assaults on friday when 10,000 people gathered in the square on the two - year anniversary of the start of the revolution that ousted president hosni mubarak <eos> \" these attacks represent a startling escalation of violence against women in tahrir square in terms of the number of incidents and the extremity^ of the violence which took place , \" the group said in a news release <eos> the organization said some of the cases involved life - threatening violence where the attackers used knives or other weapons <eos> it said some of its members also were attacked during rescue attempts <eos> cairo0 official warns of state 's collapse as protesters defy curfew "	
 	# samples = gensamples(model,weights,X, skips=2, batch_size=batch_size, k=10, temperature=1.)
-	gensamples(model,weights,X,skips=2, batch_size=batch_size, k=10, temperature=1, use_unk=True, short=False)
+	# X = "the agreement reached by president obama and congress to reopen the government and avoid default was a punt a punt that traveled 15 yards it was n't a budget agreement because nothing in it addressed any budgetary issues nor was it a spending agreement because spending continues at its current"
+	gensamples(model,weights,0,X_test=X_train,Y_test=Y_train,skips=1, batch_size=batch_size, k=10, temperature=1, use_unk=True, short=False)
 	set_trace()

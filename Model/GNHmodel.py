@@ -17,10 +17,11 @@ import random, sys
 import keras
 import Levenshtein
 import cPickle as pickle
+from time import sleep
 
 from ipdb import set_trace
 
-FN = 'train_5000'
+FN = 'train_1000'
 
 maxlend=50 # 0 - if we dont want to use description at all
 maxlenh=25
@@ -35,6 +36,7 @@ seed=42
 p_W, p_U, p_dense, p_emb, weight_decay = 0, 0, 0, 0, 0
 optimizer = 'adam'
 LR = 1e-4
+
 batch_size=64
 nflips=10
 
@@ -46,7 +48,8 @@ nb_unknown_words = 1
 # nb_train_samples = 30000
 # nb_val_samples = 3000
 
-embedding, idx2word, word2idx, glove_idx2idx, X_train, X_test, Y_train, Y_test = loadembedding(embeddingfileName="embedding_vocab_5000.pkl",datafileName="heads_desc_5000.pkl")
+embedding, idx2word, word2idx, glove_idx2idx, X_train, X_test, Y_train, Y_test = loadembedding(embeddingfileName="embedding_vocab_1000.pkl",datafileName="heads_desc_1000.pkl",test_size=128)
+# embedding, idx2word, word2idx, glove_idx2idx, X_train, X_test, Y_train, Y_test = loadembedding()
 vocab_size, embedding_size = embedding.shape
 
 def simple_context(X,mask,n=activation_rnn_size,maxlend=maxlend,maxlenh=maxlenh):
@@ -256,6 +259,9 @@ def gensamples(model,skips=2, k=10, batch_size=batch_size, short=True, temperatu
 		skips = [0]
 	else:
 		skips = range(min(maxlend,len(x)),max(maxlend,len(x)),abs(maxlend-len(x))//skips+1)
+		# if skips == []:
+		# 	skips = [maxlend]
+	# set_trace()
 	for s in skips:
 		start = lpadd(x[:s])
 		fold_start = vocab_fold(start)
@@ -281,7 +287,7 @@ def gensamples(model,skips=2, k=10, batch_size=batch_size, short=True, temperatu
 			distance = min([100]+[-Levenshtein.jaro(code,c) for c in codes])
 			if distance > -0.6:
 				print score, ' '.join(words)
-			print score, ' '.join(words)
+			# print score, ' '.join(words)
 		else:
 				print score,' '.join(words)
 		codes.append(code)
@@ -332,10 +338,12 @@ if __name__ == "__main__":
 	valgen = gen(X_test, Y_test, nb_batches=len(X_test)//batch_size, batch_size=batch_size)
 	r = next(traingen)
 
-	for iteration in range(30):
+	for iteration in range(50):
 		print 'Iteration', iteration
 		h = model.fit_generator(traingen, samples_per_epoch=len(X_train),
 			nb_epoch=1, validation_data=valgen, nb_val_samples=len(X_test))
+		# set_trace()
+		sleep(3)
 		for k,v in h.history.iteritems():
 			history[k] = history.get(k,[]) + v
 		with open('data/%s.history.pkl'%FN,'wb') as fp:
